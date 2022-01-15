@@ -1,0 +1,42 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - stage
+      - dev-*
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/workflow.yml"
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    env:
+      GO111MODULE: on
+    strategy:
+      fail-fast: false
+      matrix:
+        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.17
+
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run infra
+        run: |
+          docker-compose --file docker-compose-all.yml up -d
+
+      - name: Test
+        run: |
+          go test -failfast -v -count=1 -p 1 ./...

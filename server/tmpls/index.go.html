@@ -1,0 +1,74 @@
+{{define "home"}}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="Miikka Tuominen">
+    <title>Miikka Tuominen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            width: 960px;
+            margin: 0 auto;
+        }
+        .main-title {
+            font-family: 'Merriweather', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .sub-title {
+            margin-top: 3rem;
+            font-family: 'Merriweather', serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .intro {
+            font-family: 'Lato';
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .intro span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="main-title">Miikka Tuominen</h1>
+        <p class="intro">
+            I am currently interested in <i>Concurrency</i>, <i>Scaling</i>, <i>DevOps</i>, <i>Linux</i> and <i>Arduino</i>.
+        </p>
+        <p class="intro">
+            This is over-engineered homepage for learning Kubernetes. Check the <a href="https://github.com/tuommii/miikka-xyz-k8s">GitHub Repository</a></p>
+        </p>
+
+       <h2 class="sub-title">
+       </h2>
+        {{ range $key, $value := .repos }}
+        <div>
+            <a href="{{(index $value 0) | GetLink}}">{{$key}}</a>
+            {{ range $value }}
+            <p>{{.Timestamp | DateToEuropean}} {{.Views}}, {{.UniqueViews}}</p>
+            {{ end}}
+        </div>
+        {{ end }}
+
+        <h2 class="sub-title">Other apps</h2>
+        <ul>
+            <li><a href="https://www.youtube.com/watch?v=EkBzWn7Ymk0">Raccoon Stats</a></li>
+            <li><a href="https://scoreboard.miikka.xyz/">Scoreboard</a></li>
+            <li><a href="https://timer.miikka.xyz/">Timer</a></li>
+            <li><a href="https://multiplayer-button.herokuapp.com/">Button clicking (Hosted on Heroku)</a></li>
+        </ul>
+        <footer>
+            <p><span>{{.version}}</span>, <span>{{.buildTime}}</span>
+        </footer>
+    </div>
+</body>
+
+</html>
+{{end}}

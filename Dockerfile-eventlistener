@@ -1,0 +1,24 @@
+FROM golang:1.17-alpine AS BUILD-STEP
+
+# Update certificates, otherwise API calls wont work
+RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+
+# Create and move to working directory
+WORKDIR /build
+
+# Copy code into the container
+COPY . ./
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+RUN go build -o events-binary cmd/events/*.go
+
+WORKDIR /dist
+
+RUN cp /build/events-binary .
+
+FROM scratch
+
+COPY --from=BUILD-STEP /build/events-binary /
+COPY --from=BUILD-STEP etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+#COPY .env .env
+
+ENTRYPOINT ["/events-binary"]

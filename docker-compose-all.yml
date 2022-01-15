@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  my-rabbitmq:
+    image: rabbitmq:3.9.3-management-alpine
+    container_name: my-rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672 # For RabbitMQ GUI
+    volumes:
+      - /tmp/devops-app/:/var/lib/rabbitmq:rw
+    restart: on-failure
+    networks:
+        - dev-network
+
+  mongodb:
+    image : mongo:5.0.2
+    container_name: mongodb
+    volumes:
+    - /tmp/mongodb/database:/data/db
+    ports:
+      - 27017:27017
+    restart: on-failure
+    networks:
+      - dev-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      PUID: 1000
+      PGID: 1000
+
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - dev-network
+
+  eventlistener:
+    container_name: eventlistener
+    build:
+      context: .
+      dockerfile: Dockerfile-eventlistener
+    environment:
+      MONGO_URL: ${MONGO_URL}
+      AMQP_SERVER_URL: ${AMQP_SERVER_URL}
+      REDIS_URL: ${REDIS_URL}
+    restart: on-failure
+    networks:
+      - dev-network
+    depends_on:
+      - my-rabbitmq
+      - mongodb
+      - redis
+
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile-api
+    ports:
+    - 8080:8080
+    environment:
+      AMQP_SERVER_URL: ${AMQP_SERVER_URL}
+      MONGO_URL: ${MONGO_URL}
+      REDIS_URL: ${REDIS_URL}
+    restart: on-failure
+    networks:
+      - dev-network
+    depends_on:
+      - mongodb
+      - my-rabbitmq
+      - redis
+      - eventlistener
+
+  gateway:
+    depends_on:
+      - api
+    restart: always
+    build:
+        dockerfile: Dockerfile-gateway
+        context: .
+    ports:
+        - 80:80
+    networks:
+      - dev-network
+
+
+networks:
+  dev-network:
+    driver: bridge

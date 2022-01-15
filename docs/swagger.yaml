@@ -1,0 +1,17 @@
+basePath: /
+host: localhost:4242
+info:
+  contact:
+    email: tuommii@gmail.com
+    name: Miikka Tuominen
+    url: https://miikka.xyz
+  description: Demo
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: miikka.xyz API with Swagger
+  version: "1.0"
+paths: {}
+swagger: "2.0"
+x-extension-openapi:
+  example: value on a json format
